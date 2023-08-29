@@ -1,3 +1,5 @@
+This content is from Macbeth. These are mu solution files for their lean exercises. 
+
 # The mechanics of proof
 
 This repository contains the Lean code for the lecture notes [The mechanics of proof](https://hrmacbeth.github.io/math2001), by [Heather Macbeth](https://faculty.fordham.edu/hmacbeth1), developed for the course Math 2001 at Fordham University.

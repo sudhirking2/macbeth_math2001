@@ -96,35 +96,147 @@ example : forall_sufficiently_large n : ℕ, 2 ^ n ≥ n ^ 2 := by
 
 
 example (n : ℕ) : 3 ^ n ≥ n ^ 2 + n + 1 := by
-  sorry
-
+  simple_induction n with n ih
+  numbers
+  calc 3 ^ (n + 1) = 3^n*3 := rfl
+    _ ≥ (n ^ 2 + n + 1)*3 := by rel[ih]
+    _ = (n + 1) ^ 2 + (n + 1) + 1 + 2*n^2:= by ring
+    _ ≥ (n + 1) ^ 2 + (n + 1) + 1 := by extra
+  
 example {a : ℝ} (ha : -1 ≤ a) (n : ℕ) : (1 + a) ^ n ≥ 1 + n * a := by
-  sorry
+  simple_induction n with n ih
+  · ring; numbers
+  · have ha : 0 ≤ 1+a := by addarith [ha]
+
+    exact calc 
+      (1 + a) ^ (n + 1) = (1+a) * (1+a)^n  := by rfl
+      _ ≥ (1+a) * (1+n*a) := by rel[ih]
+      _ = 1+ (n+1)*a + n*a^2 := by ring
+      _ ≥ 1 + (n+1)*a := by extra
 
 example (n : ℕ) : 5 ^ n ≡ 1 [ZMOD 8] ∨ 5 ^ n ≡ 5 [ZMOD 8] := by  
-  sorry
+  simple_induction n with n ih
+  · left
+    numbers
+  · obtain (ih|ih) := ih
+    · right
+      exact calc (5:ℤ)^(n+1) = 5^n*5 := by rfl
+        _ ≡ 1*5 [ZMOD 8] := by rel[ih]
+        _ = 5 := by numbers
+    · left
+      exact calc (5:ℤ)^(n+1) = 5^n*5 := by rfl
+        _ ≡ 5*5 [ZMOD 8] := by rel[ih]
+        _ = 1 + 8*3 := by numbers
+        _ ≡ 1  [ZMOD 8]:= by extra
 
 example (n : ℕ) : 6 ^ n ≡ 1 [ZMOD 7] ∨ 6 ^ n ≡ 6 [ZMOD 7] := by  
-  sorry
+  simple_induction n with n ih
+  · left
+    numbers
+  · obtain (ih|ih) := ih
+    · right
+      exact calc (6:ℤ)^(n+1) = 6^n*6 := by rfl
+        _ ≡ 1*6 [ZMOD 7] := by rel[ih]
+        _ = 6 := by numbers
+    · left
+      exact calc (6:ℤ)^(n+1) = 6^n*6 := by rfl
+        _ ≡ 6*6 [ZMOD 7] := by rel[ih]
+        _ = 1 + 7*5 := by numbers
+        _ ≡ 1  [ZMOD 7]:= by extra
 
 example (n : ℕ) :
-    4 ^ n ≡ 1 [ZMOD 7] ∨ 4 ^ n ≡ 2 [ZMOD 7] ∨ 4 ^ n ≡ 4 [ZMOD 7] := by  
-  sorry
-
+    4 ^ n ≡ 1 [ZMOD 7] ∨ 4 ^ n ≡ 2 [ZMOD 7] ∨ 4 ^ n ≡ 4 [ZMOD 7] := by
+  simple_induction n with n ih
+  · left
+    numbers
+  · obtain (ih|ih|ih) := ih
+    · right; right
+      exact calc (4:ℤ)^(n+1) = 4^n*4 := by rfl
+        _ ≡ 1*4 [ZMOD 7] := by rel[ih]
+        _ = 4 := by numbers
+    · left
+      exact calc (4:ℤ)^(n+1) = 4^n*4 := by rfl
+        _ ≡ 2*4 [ZMOD 7] := by rel[ih]
+        _ = 1 + 7*1 := by numbers
+        _ ≡ 1  [ZMOD 7]:= by extra
+    · right; left
+      exact calc (4:ℤ)^(n+1) = 4^n*4 := by rfl
+        _ ≡ 4*4 [ZMOD 7] := by rel[ih]
+        _ = 2 + 7*2 := by numbers
+        _ ≡ 2  [ZMOD 7]:= by extra
+  
 example : forall_sufficiently_large n : ℕ, (3:ℤ) ^ n ≥ 2 ^ n + 100 := by
   dsimp
-  sorry
+  use 5
+  intro n
+  simple_induction n with n ih
+  intro a0
+  numbers at a0
+  intro hn
+  have hn : 4≤n := by addarith[hn]
+  rw[le_iff_eq_or_lt] at hn
+  rcases hn with hn|hn
+  · rw[← hn]
+    numbers
+  · have hn : n≥5 := by addarith [hn]
+    exact calc
+      (3:ℤ) ^ (n + 1) = 3 ^ n * 2 + 3^n  := by ring
+      _ ≥ 3^n*2 := by extra
+      _ ≥ (2 ^ n + 100)*2 := by rel[ih hn]
+      _ = 2^(n+1) + 100 + 100 := by ring
+      _ ≥ 2^(n+1) + 100 := by extra
+  
 
 example : forall_sufficiently_large n : ℕ, 2 ^ n ≥ n ^ 2 + 4 := by
   dsimp
-  sorry
+  use 5; intro n; simple_induction n with n ih; intro ih; numbers at ih
+  intro hn; have hn : 4≤n := by addarith[hn]
+  rw[le_iff_eq_or_lt] at hn
+  rcases hn with hn|hn; rw[← hn]; numbers
+  have hn : n≥5 := by addarith [hn]
+  exact calc
+    2 ^ (n + 1) = 2^n*2 := by ring
+    _ ≥ (n^2+4)*2 := by rel[ih hn]
+    _ = n^2 + n*n + 8 := by ring
+    _ ≥ n^2 +5*n+8 := by rel[hn]
+    _ = (n + 1) ^ 2 + 4 + (3*n + 3):= by ring
+    _ ≥ (n + 1) ^ 2 + 4 := by extra
 
 example : forall_sufficiently_large n : ℕ, 2 ^ n ≥ n ^ 3 := by
   dsimp
-  sorry
+  use 10; intro n; simple_induction n with n ih; intro ih; numbers at ih
+  intro hn; have hn : 9≤n := by addarith[hn]
+  rw[le_iff_eq_or_lt] at hn
+  rcases hn with hn|hn; rw[← hn]; numbers
+  have hn : n≥10 := by addarith [hn]
+  exact calc
+    2 ^ (n + 1) = 2^n*2 := by ring
+    _ ≥ (n ^ 3)*2 := by rel[ih hn]
+    _ = n^3 + n*n^2 := by ring
+    _ ≥ n^3 + 10*n^2 := by rel [hn]
+    _ = n^3 + 3*n^2 + 7*n*n := by ring
+    _ ≥ n^3 + 3*n^2 + 7*10*n := by rel[hn]
+    _ = n^3 + 3*n^2 + 3*n + 67*n := by ring
+    _ ≥ n^3 + 3*n^2 + 3*n + 67*10 := by rel[hn]
+    _ = (n + 1) ^ 3 + 669 := by ring
+    _ ≥ (n + 1) ^ 3 := by extra
 
 theorem Odd.pow {a : ℕ} (ha : Odd a) (n : ℕ) : Odd (a ^ n) := by
-  sorry
+  simple_induction n with n ih
+  use 0; ring 
+  have hn: a^(n+1) = a^n *a := by ring
+  rw[hn]
+  obtain ⟨k, hk⟩ := ih
+  obtain ⟨l, hl⟩ := ha
+  rw[hk, hl]
+  use (k  + k * l * 2 + l ) 
+  ring
+
 
 theorem Nat.even_of_pow_even {a n : ℕ} (ha : Even (a ^ n)) : Even a := by
-  sorry
+  obtain (h|h) := even_or_odd a
+  · exact h
+  · have h:= Odd.pow h n
+    rw[odd_iff_not_even] at h
+    contradiction
+
